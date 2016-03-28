@@ -8,7 +8,9 @@ Daniel Daowz
 ==============================
 */
 
-//Drum instruments Object creation
+//=====================
+// Classes
+//=====================
 
 private class SnareGen {
 
@@ -132,20 +134,29 @@ private class BassDrum {
   }
 }
 
-//=======================
+//==================================
 //Instruments declaration
-//=======================
+//==================================
 
 TriOsc Wind => ADSR TriADSR => Gain TriGain => dac;
 SawOsc Bass => ADSR SawADSR => Gain SawGain => dac;
+
 PulseOsc Organ => ADSR PulseADSR => Gain PulseGain => dac;
+PulseOsc Organ2 => ADSR PulseADSR2 => Gain PulseGain2 => dac;
+
 PulseOsc Oboe => ADSR OboeADSR => Gain OboeGain => dac;
+PulseOsc Oboe2 => ADSR OboeADSR2 => Gain OboeGain2 => dac;
+
 SawOsc Strings => ADSR StringsADSR => Gain StringsGain => dac;
+PulseOsc StringsL => ADSR StringsADSRL => Gain StringsGainL => dac.left;
+PulseOsc StringsR => ADSR StringsADSRR => Gain StringsGainR => dac.right;
+
 SnareGen Snare;
 HiTom Tom1;
 LowTom Tom2;
 BassDrum Bombo;
 
+//=========================
 //Default Settings
 //=========================
 
@@ -159,14 +170,34 @@ PulseADSR.set(30::ms, 50::ms, 0.6, 100::ms);
 PulseGain.gain(0.05);
 Organ.width(0.4);
 
+PulseADSR2.set(30::ms, 50::ms, 0.6, 100::ms);
+PulseGain2.gain(0.02);
+Organ2.width(0.2);
+
+// Oboe
 OboeADSR.set(300::ms, 300::ms, 0.6, 100::ms);
 OboeGain.gain(0.08);
 Oboe.width(0.25);
 
-StringsADSR.set(300::ms, 300::ms, 0.6, 100::ms);
-StringsGain.gain(0.1);
+OboeADSR2.set(300::ms, 300::ms, 0.6, 100::ms);
+OboeGain2.gain(0.03);
+Oboe2.width(0.4);
 
+// Strings
+StringsADSR.set(300::ms, 300::ms, 0.6, 100::ms);
+StringsGain.gain(0.09);
+
+StringsADSRL.set(3000::ms, 300::ms, 0.6, 100::ms);
+StringsGainL.gain(0.04);
+StringsL.width(0.15);
+
+StringsADSRR.set(3000::ms, 300::ms, 0.6, 100::ms);
+StringsGainR.gain(0.04);
+StringsR.width(0.1);
+
+//====================
 //MIDI Notes
+//====================
 
 24 => int c1;   36 => int c2;    48 => int c3;      60 => int c4;     72 => int c5;     84 => int c6;       96 => int c7;       108 => int c8;
 25 => int cis1; 37 => int cis2;  49 => int cis3;    61 => int cis4;   73 => int cis5;   85 => int cis6;     97 => int cis7;     109 => int cis8;
@@ -182,7 +213,10 @@ StringsGain.gain(0.1);
 35 => int b1;   47 => int b2;    59 => int b3;      71 => int b4;     83 => int b5;     95 => int b6;       107 => int b7;      119 => int b8;
 0 => int r; // Rest
 
+//==================================
 //Tempo
+//==================================
+// It doesn't matter the number attached to the int as long as every one has it's own unique value.
 
 100 => int tempo;
 
@@ -206,6 +240,7 @@ StringsGain.gain(0.1);
 6666 => int t2t4dt16; // Half + Quarter dotted + 16th
 7777 => int t2dt16;   // Half dotted + 16th
 8888 => int t4dt16;   // Quarter dotted + 16th
+9999 => int t1t2dt8d; // Whole + Half dotted + eight dotted
 
 fun dur duration(int figure) {
     if (figure == t2d )
@@ -232,13 +267,22 @@ fun dur duration(int figure) {
       return duration(t2d) + duration(t16);
     else if (figure == t4dt16)
       return duration(t4d) + duration (t16);
+    else if (figure == t1t2dt8d)
+      return duration(t1) + duration(t2d) + duration(t8d);
     else
         return 240000::ms / ( figure * tempo );
+    // 60 sec / BPM  = BPM in seconds
+    // BPM = tempo
+    // All note values are considering the Whole note as a 4 beats note.
+    // Therefore:
+    // (4 * 60 sec) / (figure * tempo) = value in seconds of the given note rhythm.
 }
-//==========
-//Score
-//==========
 
+//==============
+//Score
+//==============
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Wind
 [
  // Intro
@@ -269,6 +313,7 @@ fun dur duration(int figure) {
 
  ] @=> int windScore[][];
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Organ
 [
  // Intro
@@ -312,6 +357,52 @@ fun dur duration(int figure) {
 
  ] @=> int organScore[][];
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//Organ2 (Echo)
+[
+ // Intro
+ [0,t16],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ // A
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[c5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [d5,t16],[g4,t16],[c5,t16],[g4,t16],[e5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [g4,t16],[d5,t16],[g4,t16],[c5,t16],[g4,t16],[c5,t16],[g4,t16],[d5,t16],
+ [g4,t16],[d5,t16],[g4,t8],[g4,t16],[c5,t16],[d5,t16],[g4,t16],
+ [a4,t8],[e5,t16],[a4,t16],[d5,t16],[a4,t16],[e5,t16],[a4,t16],
+ [e5,t16],[d5,t16],[a4,t16],[e5,t16],[a4,t16],[e5,t16],[d5,t16],[a4,t16],
+ [e5,t16],[a4,t16],[d5,t16],[e5,t16],[a4,t16],[d5,t16],[e5,t16],[a4,t16],
+ [e5,t16],[a4,t16],[d5,t16],[a4,t16],[e5,t16],[d5,t16],[a4,t16],[d5,t16],
+ [c5,t8],[g5,t16],[c5,t16],[f5,t16],[c5,t16],[g5,t16],[c5,t16],
+ [f5,t16],[g5,t16],[c5,t16],[f5,t16],[g5,t16],[c5,t16],[g5,t16],[c5,t16],
+ [f5,t8],[g5,t16],[c5,t16],[f5,t16],[c5,t16],[g5,t16],[c5,t16],
+ [f5,t16],[c5,t16],[g5,t16],[c5,t16],[f5,t16],[g5,t16],[c5,t16],[f5,t16],
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[c5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [d5,t16],[g4,t16],[c5,t16],[g4,t16],[e5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [g4,t16],[d5,t16],[g4,t16],[c5,t16],[g4,t16],[c5,t16],[g4,t16],[d5,t16],
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[g4,t16],[c5,t16],[d5,t16],[g5,t16],
+ //B
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ //C
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[c5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [d5,t16],[g4,t16],[c5,t16],[g4,t16],[e5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [g4,t16],[d5,t16],[g4,t16],[c5,t16],[g4,t16],[c5,t16],[g4,t16],[d5,t16],
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[a4,t16],[f5,t16],[e5,t16],[c4,t16],
+ //D
+ [a4,t16],[f5,t16],[e5,t16],[c4,t16],[0,t2d],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[c5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [d5,t16],[g4,t16],[c5,t16],[g4,t16],[e5,t16],[g4,t16],[d5,t16],[g4,t16],
+ [g4,t16],[d5,t16],[g4,t16],[c5,t16],[g4,t16],[c5,t16],[g4,t16],[d5,t16],
+ [g4,t16],[d5,t16],[g4,t16],[d5,t16],[g4,t16],[c5,t16],[d5,t16],[r,t16]
+
+ ] @=> int organ2Score[][];
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Oboe
 [
  //Intro
@@ -340,6 +431,37 @@ fun dur duration(int figure) {
 
  ] @=> int oboeScore[][];
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//Oboe Echo
+[
+ //Intro
+ [0,t8],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ //A
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ //B
+ [a3,t4],[b3,t4],[c4,t4],[e4,t8d],[d4,t2t4dt16],
+ [a3,t16],[b3,t16],[c4,t1t1],
+ [b3,t4],[c4,t4],[d4,t4],[e4,t8d],[d4,t2t4dt16],
+ [a3,t16],[b3,t16],[c4,t1t1],
+ //C
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ //D
+ [0,t4d],[a4,t16],[d5,t16],[g5,t8d],[f5,t8d],[ais5,t8],
+ [a5,t2d],[f5,t16],[g5,t8],[a5,t16],
+ [d5,t2d],[e5,t16],[f5,t8],[a5,t16],
+ [d5,t2dt16],[f5,t16],[e5,t16],[c5,t4dt16],[e5,t16],[d5,t16],
+ [g5,t8d],[f5,t8d],[ais5,t8],[a5,t2d],
+ [f5,t16],[g5,t8],[a5,t2t4dt16],[g5,t16],[a5,t16],
+ [c6,t2],[ais5,t2],
+ [0,t1],[0,t1],[0,t1]
+
+ ] @=> int oboeEchoScore[][];
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Strings
 [
  //Intro
@@ -369,6 +491,38 @@ fun dur duration(int figure) {
 
  ] @=> int stringsScore[][];
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//Strings Echo
+[
+ //Intro
+ [0,t16],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],[0,t1],
+ //A
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ //B
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ [0,t1],[0,t1],[0,t1],[0,t1],
+ //C
+ [a3,t4],[b3,t4],[c4,t4],[e4,t8d],[d4,t2t4dt16],
+ [a3,t16],[b3,t16],[c4,t1t1],
+ [b3,t4],[c4,t4],[d4,t4],[e4,t8d],[d4,t1],[0,t1],[0,t16],
+ [0,t1],
+ //D
+ [a3,t1],
+ [ais3,t1],
+ [c4,t1],
+ [d4,t1],
+ [a3,t1],
+ [ais3,t1],
+ [c4,t1],
+ [d4,t1],
+ [a3,t1t2dt8d],[r,t16]
+
+ ] @=> int stringsEchoScore[][];
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Bass
 [
  // Intro
@@ -436,6 +590,7 @@ fun dur duration(int figure) {
 
  ] @=> int bass[][];
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Drums
 [
  // Intro
@@ -492,10 +647,12 @@ fun dur duration(int figure) {
  
  ] @=> int drumdrum[][];
 
-//===============
+//==================================
 //Play functions
-//===============
+//==================================
 
+// Arguments:
+// Drum score, start point, all the drums individualy, loop point
 fun void PlayDrum (int drumScore[][], int ini, SnareGen Drum1, HiTom Drum2, LowTom Drum3, BassDrum Drum4, int ret){
   for (ini => int i; i < drumScore.cap(); i++){
     if (drumScore[i][0] == 1){
@@ -519,6 +676,8 @@ fun void PlayDrum (int drumScore[][], int ini, SnareGen Drum1, HiTom Drum2, LowT
   }
 }
 
+// Arguments:
+// Ugen instrument, score, adsr, start point, loop point
 fun void play(SawOsc osc, int voztemp[][], ADSR z, int ini, int ret){
   for( ini => int i; i < voztemp.cap(); i++){
       if (voztemp[i][0] > 0 ) {
@@ -570,13 +729,24 @@ fun void playPulse(PulseOsc osc, int voztemp[][], ADSR z, int ini, int ret){
   }
 }
 
+//=====================
+// Sporking
+//=====================
+
 Event flowOfTime;
 
 spork ~ PlayDrum(drumdrum, 0, Snare, Tom1, Tom2, Bombo, 30);
 spork ~ play(Bass, bass, SawADSR,0,6); 
 spork ~ playTri(Wind,windScore,TriADSR,0,2);
+
 spork ~ playPulse(Organ,organScore,PulseADSR,0,2);
+spork ~ playPulse(Organ2,organ2Score,PulseADSR2,0,3);
+
 spork ~ playPulse(Oboe,oboeScore,OboeADSR,0,3);
+spork ~ playPulse(Oboe2,oboeEchoScore,OboeADSR2,0,4);
+
 spork ~ play(Strings,stringsScore,StringsADSR,0,2);
+spork ~ playPulse(StringsL,stringsEchoScore,StringsADSRL,0,3);
+spork ~ playPulse(StringsR,stringsEchoScore,StringsADSRR,0,3);
 
 flowOfTime => now;
