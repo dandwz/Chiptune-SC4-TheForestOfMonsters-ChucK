@@ -11,10 +11,12 @@ Daniel Daowz
 //=====================
 // Classes
 //=====================
+// Methods: NoteOn
+//          volume
 
-private class SnareGen {
+class SnareGen extends Chubgraph {
 
-  Gain SnareGain => dac;
+  Gain SnareGain => outlet;
   Noise noiseLay1 => ResonZ filt1 => ADSR SnareADLay1 => Gain Lay1 => SnareGain; 
   Noise noiseLay2 => ResonZ filt2 => ADSR SnareADLay2 => Gain Lay2 => SnareGain;
 
@@ -42,11 +44,15 @@ private class SnareGen {
       1 => SnareADLay2.keyOff;
     }   
   }
+
+  fun void volume (float volume){
+    volume => SnareGain.gain;
+  }
 }
 
-private class HiTom {
+class HiTom extends Chubgraph {
 
-  Gain HiTomGain => dac;
+  Gain HiTomGain => outlet;
   Noise NoiseLay => ResonZ Filt => ADSR NoiseADLay => Gain Lay1 => HiTomGain;
   TriOsc Gliss => ADSR GlissADLay => Gain Lay2 => HiTomGain;
 
@@ -72,11 +78,15 @@ private class HiTom {
       1 => GlissADLay.keyOff;
     }   
   }
+
+  fun void volume (float volume){
+    volume => HiTomGain.gain;
+  }
 }
 
-private class LowTom {
+class LowTom extends Chubgraph {
 
-  Gain LowTomGain => dac;
+  Gain LowTomGain => outlet;
   Noise NoiseLay => ResonZ Filt => ADSR NoiseADLay => Gain Lay1 => LowTomGain;
   TriOsc Gliss => ADSR GlissADLay => Gain Lay2 => LowTomGain;
 
@@ -102,9 +112,13 @@ private class LowTom {
       1 => GlissADLay.keyOff;
     }   
   }
+
+  fun void volume (float volume){
+    volume => LowTomGain.gain;
+  }
 }
 
-private class BassDrum {
+class BassDrum extends Chubgraph {
 
   Gain BassDrumGain => dac;
   Noise NoiseLay => ResonZ Filt => ADSR NoiseADLay => Gain Lay1 => BassDrumGain;
@@ -132,6 +146,10 @@ private class BassDrum {
       1 => GlissADLay.keyOff;
     }   
   }
+
+  fun void volume (float volume){
+    volume => BassDrumGain.gain;
+  }
 }
 
 //==================================
@@ -151,10 +169,10 @@ SawOsc Strings => ADSR StringsADSR => Gain StringsGain => dac;
 PulseOsc StringsL => ADSR StringsADSRL => Gain StringsGainL => dac.left;
 PulseOsc StringsR => ADSR StringsADSRR => Gain StringsGainR => dac.right;
 
-SnareGen Snare;
-HiTom Tom1;
-LowTom Tom2;
-BassDrum Bombo;
+SnareGen Snare => dac;
+HiTom Tom1 => dac;
+LowTom Tom2 => dac;
+BassDrum Bombo => dac;
 
 //=========================
 //Default Settings
@@ -652,7 +670,7 @@ fun dur duration(int figure) {
 //==================================
 
 // Arguments:
-// Drum score, start point, all the drums individualy, loop point
+// Drum score, start point, all the drums individually, loop point
 fun void PlayDrum (int drumScore[][], int ini, SnareGen Drum1, HiTom Drum2, LowTom Drum3, BassDrum Drum4, int ret){
   for (ini => int i; i < drumScore.cap(); i++){
     if (drumScore[i][0] == 1){
