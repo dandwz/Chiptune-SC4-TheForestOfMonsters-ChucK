@@ -1,11 +1,19 @@
 /*
-==============================
+=====================================================================
 Title: The forest of monsters 
 Composed by KONAMI
 
 Arranged and programmed by
 Daniel Daowz
-==============================
+
+This composition belongs to KONAMI
+
+======================================================================
+Copyright © 2016 Daniel Daowz dandwz@hotmail.com
+This work is free. You can redistribute it and/or modify it under the
+terms of the Do What The Fuck You Want To Public License, Version 2,
+as published by Sam Hocevar. See the COPYING file for more details.
+======================================================================
 */
 
 //=====================
